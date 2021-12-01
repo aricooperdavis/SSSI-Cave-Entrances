@@ -3,6 +3,11 @@ This project illustrates how many of cave and mine entrances (and other karst fe
 
 > **Note**: the results of this analysis are only as reliable as the source data used. Whilst some work has been done to correct obvious mistakes in the source data, it cannot be assumed to be completely accurate.
 
+## View the Map
+The interactive map is available at [aricooperdavis.github.io/SSSI-Cave-Entrances](https://aricooperdavis.github.io/SSSI-Cave-Entrances/), or click the image below.
+
+[![View the Map](screenshot.png)](https://aricooperdavis.github.io/SSSI-Cave-Entrances/)
+
 ## Data sources
 ### Entrances/features
 Feature data for points of interest is collected from a variety of public databases:
