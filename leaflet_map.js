@@ -87,6 +87,9 @@ fetch('features.geojson')
             "<img src='http://datamap.gov.wales/geoserver/inspire-nrw/ows?service=WMS&request=GetLegendGraphic&format=image/png&layer=NRW_SSSI&'/>&nbsp;Wales SSSIs": wales,
         }, caves));
         legend.addTo(map);
+
+        document.getElementsByClassName('leaflet-control-layers-overlays')[0].insertAdjacentHTML('beforebegin', '<h4><b>SSSIs</b></h4>');
+        document.getElementsByClassName('leaflet-control-layers-overlays')[0].children[3].insertAdjacentHTML('beforebegin', '<p></p><h4><b>Caves</b></h4>');
     });
 
 // UI layers
@@ -99,9 +102,3 @@ infobox.onAdd = function(map) {
     return div;
 };
 infobox.addTo(map);
-
-// Finishing touches (botch job)
-window.onload = function() {
-    document.getElementsByClassName('leaflet-control-layers-overlays')[0].insertAdjacentHTML('beforebegin', '<h4><b>SSSIs</b></h4>');
-    document.getElementsByClassName('leaflet-control-layers-overlays')[0].children[3].insertAdjacentHTML('beforebegin', '<p></p><h4><b>Caves</b></h4>');
-}
