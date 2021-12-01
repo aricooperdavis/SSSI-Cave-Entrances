@@ -95,7 +95,7 @@ infobox.onAdd = function(map) {
     let div = L.DomUtil.create('div', 'infobox');
     div.innerHTML += '<h4>SSSI Cave Entrances</h4>' +
         'Map of cave features on SSSIs in Great Britain.<br><br>Zoom in for SSSI boundaries. Click on markers for details.' +
-        '<br><br><a href="">Sources and more info</a>.';
+        '<br><br><a href="https://github.com/aricooperdavis/SSSI-Cave-Entrances">Sources and more info</a>.';
     return div;
 };
 infobox.addTo(map);
