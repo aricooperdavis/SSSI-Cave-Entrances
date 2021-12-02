@@ -6,38 +6,33 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     subdomains: ['a','b','c'],
     maxZoom: 18,
-    //id: 'mapbox/streets-v11',
-    //tileSize: 512,
-    //zoomOffset: -1,
-    //accessToken: 'pk.eyJ1IjoiYXJpY29vcGVyZGF2aXMiLCJhIjoiY2t3bHo1NjN4MXI3aTJ3bWQ4cXA4b2ljciJ9.bV0roZ5YiqR6PhMmzIQZcw'
 }).addTo(map);
 
 // SSSI WMS layers
-let england = L.tileLayer.wms('http://environment.data.gov.uk/spatialdata/sites-of-special-scientific-interest-england/wms', {
-    layers: 'Sites_of_Special_Scientific_Interest_England',
-    format: 'image/png',
-    transparent: 'true',
-    minZoom: 11,
-    opacity: 0.5,
-    //minNativeZoom: 11,
+let wms = {
+    'england': {
+        'address': 'http://environment.data.gov.uk/spatialdata/sites-of-special-scientific-interest-england/wms',
+        'layer': 'Sites_of_Special_Scientific_Interest_England',
+    },
+    'scotland': {
+        'address': 'http://cagmap.snh.gov.uk/arcgis/services/snh_protected_sites/MapServer/WMSServer',
+        'layer': '2',
+    },
+    'wales': {
+        'address': 'http://lle.gov.wales/services/wms/nrw',
+        'layer': 'NRW_SSSI',
+    },
+}
+Object.keys(wms).forEach(k => {
+    wms[k]['leaf'] = L.tileLayer.wms(wms[k]['address'], {
+        layers: wms[k]['layer'],
+        format: 'image/png',
+        transparent: 'true',
+        minZoom: 11,
+        opacity: (k == 'england' ? 0.5 : 1),
+    });
+    wms[k]['leaf'].addTo(map);
 });
-england.addTo(map);
-let scotland = L.tileLayer.wms('http://cagmap.snh.gov.uk/arcgis/services/snh_protected_sites/MapServer/WMSServer', {
-    layers: '2',
-    format: 'image/png',
-    transparent: 'true',
-    minZoom: 11,
-    //minNativeZoom: 1,
-});
-scotland.addTo(map);
-let wales = L.tileLayer.wms('http://lle.gov.wales/services/wms/nrw', {
-    layers: 'NRW_SSSI',
-    format: 'image/png',
-    transparent: 'true',
-    minZoom: 11,
-    //minNativeZoom: 1,
-});
-wales.addTo(map);
 
 // Feature markers
 let registries = {
@@ -50,27 +45,31 @@ let registries = {
     'MCRA': '#d62728',
     'Northern Caves': '#7f7f7f'
 };
-let caves = {}
+let sssis = {
+    'E': 'https://designatedsites.naturalengland.org.uk/SiteDetail.aspx?SiteCode=S',
+    'S': 'https://sitelink.nature.scot/site/',
+    'W': 'https://naturalresources.wales/guidance-and-advice/environmental-topics/wildlife-and-biodiversity/protected-areas-of-land-and-seas/find-protected-areas-of-land-and-sea?lang=en&',
+};
 fetch('features.geojson')
     .then(response => response.json())
     .then(jsonResponse => {
-
         // Add geoJSON layers to object and add to map
+        let caves = {}
         Object.keys(registries).forEach(function(source) {
             caves[source] = L.geoJSON(jsonResponse, {
                 filter: function(feature, layer) {
-                    return feature.properties.source_registry == source;
+                    return feature.properties.r == source;
                 },
                 pointToLayer: function(feature, latlng) {
                     return L.circleMarker(latlng, {
                         radius: 5,
-                        color: registries[feature.properties.source_registry],
+                        color: registries[feature.properties.r],
                         opacity: 1,
                         fillOpacity: 0.5,
                     });
                 },
                 onEachFeature: function(feature, layer) {
-                    layer.bindPopup(`<b>${feature.properties.cave_name}</b><br><b>SSSI</b>: ${feature.properties.sssi}<br><b>Source</b>: ${feature.properties.source_registry}`);
+                    layer.bindPopup(`<b>${feature.properties.n}</b><br><b>SSSI</b>: <a href="${sssis[feature.properties.c]}${(feature.properties.i)}">${feature.properties.s}</a><br><b>Source</b>: ${feature.properties.r}`);
                 },
             });
         });
@@ -81,11 +80,13 @@ fetch('features.geojson')
             let icon = '<i class="circle" style="background: '+registries[c[0]]+'"></i>';
             return [icon+'&nbsp;'+c[0], c[1]]
         }));
-        let legend = L.control.layers(null, Object.assign({}, {
-            "<img src='http://environment.data.gov.uk/spatialdata/sites-of-special-scientific-interest-england/wms?request=GetLegendGraphic&version=1.3.0&format=image/png&layer=Sites_of_Special_Scientific_Interest_England&style=default&'/>&nbsp;England SSSIs": england,
-            "<img src='http://cagmap.snh.gov.uk/arcgis/services/snh_protected_sites/MapServer/WMSServer?service=WMS&request=GetLegendGraphic&version=1.3.0&format=image/png&layer=2&'/>&nbsp;Scotland SSSIs": scotland,
-            "<img src='http://datamap.gov.wales/geoserver/inspire-nrw/ows?service=WMS&request=GetLegendGraphic&format=image/png&layer=NRW_SSSI&'/>&nbsp;Wales SSSIs": wales,
-        }, caves));
+        let legend = L.control.layers(null, Object.assign({},
+            Object.fromEntries(
+                Object.keys(wms).map(function(k) {
+                    return [`<img src='${wms[k]['address']}?version=1.3.0&request=GetLegendGraphic&format=image/png&layer=${wms[k]['layer']}'/>&nbsp;${k[0].toUpperCase()}${k.substr(1)}`, wms[k]['leaf']];
+                })
+            ),
+            caves));
         legend.addTo(map);
 
         document.getElementsByClassName('leaflet-control-layers-overlays')[0].insertAdjacentHTML('beforebegin', '<h4><b>SSSIs</b></h4>');
