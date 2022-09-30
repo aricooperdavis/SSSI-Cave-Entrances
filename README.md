@@ -3,6 +3,8 @@ This project illustrates how many of cave and mine entrances (and other karst fe
 
 > **Note**: the results of this analysis are only as reliable as the source data used. Whilst some work has been done to correct obvious mistakes in the source data, it cannot be assumed to be completely accurate.
 
+The source data used to drive this visualisation was collected at the end of 2021 and will not be updated (except by request).
+
 ## View the Map
 The interactive map is available at [aricooperdavis.github.io/SSSI-Cave-Entrances](https://aricooperdavis.github.io/SSSI-Cave-Entrances/), or click the image below.
 
