@@ -26,7 +26,7 @@ jobs:
       - run: npm install -g html-minifier
 
       # Perform minification, overwriting original files
-      - run: terser ./js/leaflet_map.js --compress --mangle -o ./leaflet_map.js
+      - run: terser ./leaflet_map.js --compress --mangle -o ./leaflet_map.js
       - run: csso ./leaflet_map.css -o ./leaflet_map.css
       - run: html-minifier --collapse-boolean-attributes --collapse-whitespace --minify-css --minify-js --minify-urls --remove-attribute-quotes --remove-comments --remove-empty-attributes --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-style-link-type-attributes --remove-tag-whitespace --use-short-doctype -o ./index.html ./index.html
 
